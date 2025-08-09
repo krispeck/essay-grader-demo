@@ -1,0 +1,110 @@
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+export default function EssayGraderDemo() {
+  const [page, setPage] = useState("login");
+  const [essays, setEssays] = useState([]);
+  const [selectedEssay, setSelectedEssay] = useState(null);
+
+  // Mock data for demo
+  const sampleOCR = "This is the extracted text from the student's handwritten essay...";
+  const sampleRubric = [
+    { criterion: "Thesis Statement", score: 4, max: 5 },
+    { criterion: "Evidence & Support", score: 3, max: 5 },
+    { criterion: "Organization", score: 4, max: 5 },
+    { criterion: "Grammar & Mechanics", score: 5, max: 5 }
+  ];
+
+  return (
+    <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+      {page === "login" && (
+        <Card className="w-full max-w-sm">
+          <CardHeader>
+            <CardTitle>Essay Grader</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <Input placeholder="Email" />
+            <Input placeholder="Password" type="password" />
+            <Button className="w-full" onClick={() => setPage("dashboard")}>Log In</Button>
+          </CardContent>
+        </Card>
+      )}
+
+      {page === "dashboard" && (
+        <div className="w-full max-w-5xl">
+          <div className="flex justify-between items-center mb-4">
+            <h1 className="text-2xl font-semibold">Dashboard</h1>
+            <Button onClick={() => {
+              setEssays([...essays, { name: "Essay 1.jpg", status: "Pending" }]);
+            }}>+ New Upload</Button>
+          </div>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Filename</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Score</TableHead>
+                <TableHead>Plagiarism</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {essays.map((e, i) => (
+                <TableRow key={i}>
+                  <TableCell>{e.name}</TableCell>
+                  <TableCell>{e.status}</TableCell>
+                  <TableCell>{e.score || "-"}</TableCell>
+                  <TableCell>{e.plagiarism || "-"}</TableCell>
+                  <TableCell>
+                    <Button size="sm" variant="outline" onClick={() => {
+                      setSelectedEssay(e);
+                      setPage("review");
+                    }}>Review</Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
+
+      {page === "review" && (
+        <div className="w-full max-w-5xl grid grid-cols-2 gap-4">
+          <div className="border p-2 bg-white rounded shadow">
+            <div className="text-sm font-semibold mb-2">Original Essay</div>
+            <div className="h-96 bg-gray-100 flex items-center justify-center">[Essay Image]</div>
+          </div>
+          <div className="space-y-4">
+            <div>
+              <div className="text-sm font-semibold mb-1">OCR Extracted Text</div>
+              <Textarea defaultValue={sampleOCR} className="h-32" />
+            </div>
+            <div>
+              <div className="text-sm font-semibold mb-1">Rubric Scoring</div>
+              {sampleRubric.map((r, i) => (
+                <div key={i} className="flex justify-between items-center border-b py-1">
+                  <span>{r.criterion}</span>
+                  <Input type="number" defaultValue={r.score} className="w-16" />
+                  <span>/ {r.max}</span>
+                </div>
+              ))}
+            </div>
+            <div>
+              <div className="text-sm font-semibold mb-1">Random Comment</div>
+              <Textarea defaultValue={"Well-structured argument with clear evidence."} />
+              <Button size="sm" className="mt-1">Shuffle</Button>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setPage("dashboard")}>Save</Button>
+              <Button variant="outline" onClick={() => setPage("dashboard")}>Cancel</Button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
